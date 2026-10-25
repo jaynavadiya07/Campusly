@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Directory & Live CRUD API - Campusly</title>
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <style>
+    /* Enhanced High-Contrast Light Theme Custom Styles */
+    :root {
+      --font-mono: 'JetBrains Mono', Menlo, Consolas, monospace;
+      --dt-bg: #ffffff;
+      --dt-border: #d0d7de;
+      --dt-header: #f6f8fa;
+      --dt-row-hover: #f3f4f6;
+      --dt-selected: #e7f3ff;
+      --dt-text: #1f2328;
+      --dt-text-secondary: #57606a;
+      --status-200: #1a7f37;
+      --status-400: #cf222e;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: #1e293b;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Top Navigation Bar */
+    .top-navbar {
+      background: #ffffff;
+      border-bottom: 1px solid rgba(0, 102, 255, 0.14);
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-logo-img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0b194c;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #0066ff;
+      background: rgba(0, 102, 255, 0.08);
+      padding: 2px 8px;
+      border-radius: 9999px;
+      border: 1px solid rgba(0, 102, 255, 0.2);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-live-api {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: rgba(22, 163, 74, 0.1);
+      color: #16a34a;
+      border: 1px solid rgba(22, 163, 74, 0.25);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #16a34a;
+      box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+      animation: pulse-green 1.8s infinite;
+    }
+
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
+      70% { box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+    }
+
+    /* Main Container */
+    .app-container {
+      max-width: 1440px;
+      margin: 1.5rem auto 3rem;
+      padding: 0 1.5rem;
+    }
+
+    /* Breadcrumbs */
+    .breadcrumb-trail {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 1.25rem;
+    }
+    .breadcrumb-trail a {
+      color: #0066ff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .breadcrumb-trail span {
+      color: #94a3b8;
+    }
+
+    /* Page Header */
+    .page-hero {
+      background: #ffffff;
+      border: 1px solid rgba(0, 102, 255, 0.12);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 20px -2px rgba(0, 102, 255, 0.06);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .hero-text h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0b194c;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hero-text p {
+      color: #64748b;
+      font-size: 0.92rem;
+      max-width: 720px;
+      line-height: 1.45;
+    }
+
+    /* Quick Stats */
+    .stats-row {
+      display: flex;
+      gap: 1rem;
+    }
+    .stat-pill {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 0.6rem 1rem;
+      text-align: center;
+      min-width: 100px;
+    }
+    .stat-pill .num {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0066ff;
+      line-height: 1.2;
+    }
+    .stat-pill .label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #64748b;
+    }
+
+    /* Toolbar Panel */
+    .toolbar-panel {
+      background: #ffffff;
+      border: 1px solid rgba(0, 102, 255, 0.14);
+      border-radius: 16px;
+      padding: 1.2rem 1.75rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+    }
+
+    .toolbar-search-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 340px;
+      max-width: 520px;
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input-wrapper svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      width: 18px;
+      height: 18px;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.65rem 1rem 0.65rem 2.75rem !important;
+      border-radius: 10px;
+      border: 1.5px solid #cbd5e1;
+      background: #ffffff;
+      font-size: 0.92rem;
+      color: #0f172a;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: #0066ff;
+      box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.15);
+    }
+
+    .debounce-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #0066ff;
+      background: rgba(0, 102, 255, 0.08);
+      border: 1px solid rgba(0, 102, 255, 0.2);
+      border-radius: 6px;
+      padding: 4px 8px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .toolbar-filters {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .select-control {
+      padding: 0.62rem 2.2rem 0.62rem 0.85rem;
+      border-radius: 10px;
+      border: 1.5px solid #cbd5e1;
+      background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+      font-size: 0.88rem;
+      color: #1e293b;
+      font-weight: 500;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: border-color 0.2s;
+    }
+    .select-control:focus {
+      outline: none;
+      border-color: #0066ff;
+    }
+
+    .btn-action-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #0066ff;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25);
+    }
+    .btn-action-primary:hover {
+      background: #0052cc;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 102, 255, 0.35);
+    }
+
+    .btn-action-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 600;
+      font-size: 0.88rem;
+      padding: 0.65rem 1rem;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-action-secondary:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-action-inspect {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #eff6ff;
+      color: #0066ff;
+      border: 1px solid #bfdbfe;
+      font-weight: 600;
+      font-size: 0.88rem;
+      padding: 0.65rem 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-action-inspect:hover {
+      background: #dbeafe;
+    }
+
+    /* Live Notification Toast / Feedback Banner */
+    .feedback-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.25rem;
+      border-radius: 12px;
+      margin-bottom: 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+      animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .feedback-banner.success {
+      display: flex;
+      background: #f0fdf4;
+      color: #166534;
+      border: 1.5px solid #bbf7d0;
+    }
+    .feedback-banner.error {
+      display: flex;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1.5px solid #fecaca;
+    }
+    .feedback-banner.info {
+      display: flex;
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1.5px solid #bfdbfe;
+    }
+    .feedback-banner .btn-dismiss {
+      background: transparent;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: inherit;
+      padding: 0 4px;
+      line-height: 1;
+    }
+
+    /* Data Table Card */
+    .table-panel {
+      background: #ffffff;
+      border: 1px solid rgba(0, 102, 255, 0.14);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      margin-bottom: 2rem;
+    }
+
+    .table-panel-header {
+      padding: 1.1rem 1.5rem;
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .table-panel-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0b194c;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .data-table th {
+      background: #f8fafc;
+      color: #475569;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      user-select: none;
+    }
+
+    .data-table td {
+      padding: 0.95rem 1.25rem;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.92rem;
+      color: #1e293b;
+      vertical-align: middle;
+      transition: background 0.15s;
+    }
+
+    .data-table tr:hover td {
+      background: #f8fafc;
+    }
+
+    .student-id-pill {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: #f1f5f9;
+      color: #0b194c;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .student-name-cell {
+      font-weight: 600;
+      color: #0b194c;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar-mini {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0066ff 0%, #00d2fe 100%);
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+    }
+
+    .dept-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+    .dept-cse { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .dept-ce  { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .dept-it  { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .dept-ec  { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .status-active {
+      background: #f0fdf4;
+      color: #16a34a;
+      border: 1px solid #bbf7d0;
+    }
+    .status-active::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #16a34a;
+    }
+    .status-inactive {
+      background: #f8fafc;
+      color: #64748b;
+      border: 1px solid #cbd5e1;
+    }
+    .status-inactive::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #94a3b8;
+    }
+
+    .action-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-edit {
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: #f0f9ff;
+      color: #0284c7;
+      border: 1px solid #bae6fd;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn-edit:hover {
+      background: #e0f2fe;
+      border-color: #7dd3fc;
+    }
+
+    .btn-delete {
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn-delete:hover {
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+
+    /* Loading Spinner State */
+    .loading-state-wrapper {
+      padding: 3rem 1.5rem;
+      text-align: center;
+      display: none;
+    }
+    .loading-spinner {
+      width: 44px;
+      height: 44px;
+      border: 3.5px solid #e2e8f0;
+      border-top-color: #0066ff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #0b194c;
+      margin-bottom: 0.25rem;
+    }
+    .loading-sub {
+      font-size: 0.82rem;
+      color: #64748b;
+      font-family: var(--font-mono);
+    }
+
+    /* Empty State */
+    .empty-state {
+      padding: 3.5rem 1.5rem;
+      text-align: center;
+      display: none;
+    }
+    .empty-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.8rem;
+    }
+    .empty-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0b194c;
+      margin-bottom: 0.3rem;
+    }
+    .empty-desc {
+      font-size: 0.88rem;
+      color: #64748b;
+    }
+
+    /* Modal Backdrop & Dialog */
+    .modal-overlay {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      background: rgba(11, 25, 76, 0.5) !important;
+      backdrop-filter: blur(5px) !important;
+      -webkit-backdrop-filter: blur(5px) !important;
+      display: none !important;
+      align-items: center !important;
+      justify-content: center !important;
+      z-index: 999999 !important;
+      padding: 1rem !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transition: opacity 0.25s ease !important;
+    }
+    .modal-overlay.active {
+      display: flex !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    .modal-card {
+      background: #ffffff !important;
+      border-radius: 18px !important;
+      width: 100% !important;
+      max-width: 520px !important;
+      box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.4) !important;
+      border: 1.5px solid rgba(0, 102, 255, 0.25) !important;
+      overflow: hidden !important;
+      animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      transform: translateY(0) !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+    @keyframes modalPop {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.75rem;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0b194c;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.4rem;
+      line-height: 1;
+      color: #64748b;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+    }
+    .modal-close-btn:hover {
+      color: #0f172a;
+      background: #e2e8f0;
+    }
+
+    .modal-body {
+      padding: 1.5rem 1.75rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.1rem;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 0.4rem;
+    }
+    .form-input {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border-radius: 9px;
+      border: 1.5px solid #cbd5e1;
+      font-size: 0.92rem;
+      font-family: inherit;
+      color: #0f172a;
+      transition: all 0.2s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: #0066ff;
+      box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.12);
+    }
+    .form-input.is-invalid {
+      border-color: #dc2626 !important;
+      background-color: #fffaf0;
+    }
+    .form-error-feedback {
+      display: none;
+      font-size: 0.78rem;
+      color: #dc2626;
+      font-weight: 600;
+      margin-top: 0.35rem;
+    }
+    .form-error-feedback.visible {
+      display: block;
+    }
+
+    .modal-alert-box {
+      display: none;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1.1rem;
+      font-weight: 500;
+    }
+    .modal-alert-box.visible {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.75rem 1.25rem;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* Delete Confirmation Modal Specifics */
+    .delete-confirm-box {
+      text-align: center;
+      padding: 1rem 0;
+    }
+    .delete-warning-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #fee2e2;
+      color: #dc2626;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+    }
+
+    /* =========================================================================
+       AUTHENTIC CHROME DEVTOOLS NETWORK PANEL (LIGHT THEME)
+       ========================================================================= */
+    .devtools-panel {
+      background: #ffffff;
+      border: 1px solid #d0d7de;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+      margin-top: 2rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .dt-top-toolbar {
+      background: #f6f8fa;
+      border-bottom: 1px solid #d0d7de;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .dt-tabs-left {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .dt-tab-item {
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #57606a;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dt-tab-item.active {
+      color: #0969da;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .dt-filter-bar {
+      background: #ffffff;
+      border-bottom: 1px solid #d0d7de;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .dt-record-btn {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #cf222e;
+      box-shadow: 0 0 0 2px rgba(207, 34, 46, 0.25);
+    }
+
+    .dt-filter-pill {
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 4px;
+      color: #57606a;
+      cursor: pointer;
+    }
+    .dt-filter-pill.active {
+      background: #e7f3ff;
+      color: #0969da;
+    }
+
+    .dt-network-split {
+      display: grid;
+      grid-template-columns: 48% 52%;
+      min-height: 380px;
+      max-height: 480px;
+      overflow: hidden;
+    }
+    @media (max-width: 992px) {
+      .dt-network-split {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dt-request-list-pane {
+      border-right: 1px solid #d0d7de;
+      overflow-y: auto;
+      background: #ffffff;
+    }
+
+    .dt-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      font-family: var(--font-mono);
+    }
+
+    .dt-table th {
+      background: #f6f8fa;
+      color: #57606a;
+      font-weight: 600;
+      text-align: left;
+      padding: 6px 10px;
+      border-bottom: 1px solid #d0d7de;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .dt-table tr {
+      cursor: pointer;
+      user-select: none;
+    }
+    .dt-table tr:hover td {
+      background: #f6f8fa;
+    }
+    .dt-table tr.selected td {
+      background: #e7f3ff !important;
+      color: #0969da;
+      font-weight: 600;
+    }
+
+    .dt-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #f0f2f5;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #1f2328;
+    }
+
+    .badge-status-ok {
+      color: #1a7f37;
+      font-weight: 700;
+    }
+    .badge-status-created {
+      color: #0969da;
+      font-weight: 700;
+    }
+    .badge-status-err {
+      color: #cf222e;
+      font-weight: 700;
+    }
+
+    .dt-detail-pane {
+      background: #fafbfc;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dt-detail-subtabs {
+      background: #f6f8fa;
+      border-bottom: 1px solid #d0d7de;
+      display: flex;
+      padding: 0 8px;
+    }
+    .dt-subtab {
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #57606a;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .dt-subtab.active {
+      color: #0969da;
+      border-bottom-color: #0969da;
+      background: #ffffff;
+    }
+
+    .dt-detail-content {
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.5;
+      color: #1f2328;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .json-key { color: #0550ae; font-weight: 600; }
+    .json-string { color: #0a3069; }
+    .json-number { color: #116329; }
+    .json-boolean { color: #cf222e; font-weight: 600; }
+    .json-null { color: #6e7781; font-style: italic; }
+
+    /* Footer */
+    .portal-footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: #64748b;
+      font-size: 0.85rem;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 3rem;
+      background: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Portal Navigation Bar -->
+  <header class="top-navbar">
+    <a href="index.php" class="brand-block">
+      <img src="css/logo.png" alt="Campusly Logo" class="brand-logo-img" onerror="this.style.display='none'">
+      <div>
+        <span class="brand-title">Campusly</span>
+        <span class="brand-subtitle">Live API Engine</span>
+      </div>
+    </a>
+
+    <div class="nav-actions">
+      <div class="badge-live-api">
+        <span class="pulse-dot"></span>
+        <span>JSON API: <strong>api.php (200 OK)</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-container">
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb-trail" aria-label="Breadcrumb">
+      <a href="index.php">Campusly Home</a>
+      <span>/</span>
+      <a href="dashboard.php">Dashboard</a>
+      <span>/</span>
+      <strong style="color: #0b194c;">Asynchronous AJAX/Fetch-Based CRUD</strong>
+    </nav>
+
+    <!-- Page Hero Banner -->
+    <section class="page-hero">
+      <div class="hero-text">
+        <h1>
+          <span>⚡ Asynchronous Student Management System</span>
+        </h1>
+        <p>
+          Consume PHP JSON endpoints via modern JavaScript Fetch API. Perform List, Add, Update, and Delete operations seamlessly without full page reloads, featuring real-time debounced AJAX search, strict input validation, and DevTools Network inspection.
+        </p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-pill">
+          <div class="num" id="stat-total-students">0</div>
+          <div class="label">Total Records</div>
+        </div>
+        <div class="stat-pill">
+          <div class="num" id="stat-active-students" style="color: #16a34a;">0</div>
+          <div class="label">Active Students</div>
+        </div>
+        <div class="stat-pill">
+          <div class="num" id="stat-latency" style="color: #0284c7;">-- ms</div>
+          <div class="label">Fetch Latency</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- User Feedback Toast / Banner -->
+    <div id="feedback-banner" class="feedback-banner">
+      <span id="feedback-text">Operation completed successfully.</span>
+      <button type="button" class="btn-dismiss" onclick="dismissBanner()">&times;</button>
+    </div>
+
+    <!-- Control Toolbar Panel -->
+    <section class="toolbar-panel">
+      <!-- Search with Live Debounce -->
+      <div class="toolbar-search-group">
+        <div class="search-input-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" class="search-input" placeholder="Search students by name, email, or ID..." autocomplete="off">
+        </div>
+        <span class="debounce-badge" title="Intermediate Extension: AJAX Search with 300ms Debounce">
+          ⚡ 300ms Debounce
+        </span>
+      </div>
+
+      <!-- Filters & Actions -->
+      <div class="toolbar-filters">
+        <select id="course-filter" class="select-control">
+          <option value="all">All Departments</option>
+          <option value="CSE">Computer Engineering (CSE)</option>
+          <option value="CE">Computer Science (CE)</option>
+          <option value="IT">Information Tech (IT)</option>
+          <option value="EC">Electronics (EC)</option>
+        </select>
+
+        <select id="status-filter" class="select-control">
+          <option value="all">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+
+        <button type="button" class="btn-action-secondary" id="btn-refresh" title="Reload from api.php">
+          🔄 Refresh
+        </button>
+
+        <button type="button" class="btn-action-primary" id="btn-open-add-modal">
+          ➕ Add New Student
+        </button>
+
+        <button type="button" class="btn-action-inspect" id="btn-toggle-devtools">
+          🌐 Network Inspector
+        </button>
+      </div>
+    </section>
+
+    <!-- Student Records Data Table Panel -->
+    <section class="table-panel">
+      <div class="table-panel-header">
+        <div class="table-panel-title">
+          <span>📋 Student Records Catalog</span>
+          <span id="records-counter-badge" style="font-size: 0.8rem; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 9999px; font-weight: 700;">Loading...</span>
+        </div>
+        <div style="font-size: 0.82rem; color: #64748b;">
+          Endpoint: <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #0b194c; font-weight: 600;">GET /api.php</code>
+        </div>
+      </div>
+
+      <!-- Loading State Overlay -->
+      <div id="loading-state" class="loading-state-wrapper">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Executing Asynchronous Fetch Request...</div>
+        <div class="loading-sub">Consuming http://127.0.0.1:8000/api.php via Fetch API</div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">No Matching Student Records Found</div>
+        <div class="empty-desc">Try clearing your search query or department filter criteria.</div>
+      </div>
+
+      <!-- Table Content -->
+      <div class="table-responsive" id="table-wrapper">
+        <table class="data-table" id="students-table">
+          <thead>
+            <tr>
+              <th style="width: 90px;">ID</th>
+              <th>Student Full Name</th>
+              <th>University Email</th>
+              <th style="width: 140px;">Department</th>
+              <th style="width: 120px;">Status</th>
+              <th style="width: 170px; text-align: center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="students-tbody">
+            <!-- Dynamically populated via Fetch API in script.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Authentic Chrome DevTools Network Tab Panel -->
+    <section class="devtools-panel" id="devtools-section">
+      <!-- DevTools Main Toolbar -->
+      <div class="dt-top-toolbar">
+        <div class="dt-tabs-left">
+          <div class="dt-tab-item">Elements</div>
+          <div class="dt-tab-item">Console</div>
+          <div class="dt-tab-item active">
+            <span>Network</span>
+            <span id="dt-req-count" style="background: #d0d7de; color: #1f2328; font-size: 10px; padding: 1px 5px; border-radius: 10px;">0</span>
+          </div>
+          <div class="dt-tab-item">Sources</div>
+          <div class="dt-tab-item">Application</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: #57606a;">
+          <span>Chrome DevTools Light Mode</span>
+          <span style="background: #dbeafe; color: #1e40af; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Fetch / XHR Monitor</span>
+        </div>
+      </div>
+
+      <!-- Filter Sub-bar -->
+      <div class="dt-filter-bar">
+        <span class="dt-record-btn" title="Recording network log"></span>
+        <span style="color: #d0d7de;">|</span>
+        <span class="dt-filter-pill">All</span>
+        <span class="dt-filter-pill active">Fetch/XHR</span>
+        <span class="dt-filter-pill">JS</span>
+        <span class="dt-filter-pill">CSS</span>
+        <span class="dt-filter-pill">Doc</span>
+        <span style="color: #d0d7de; margin: 0 4px;">|</span>
+        <span style="font-size: 11px; color: #57606a;">Filter: <strong id="dt-filter-label">/api.php</strong></span>
+      </div>
+
+      <!-- Network Split Screen: Requests List (Left) + Detail Pane (Right) -->
+      <div class="dt-network-split">
+        <!-- Requests List -->
+        <div class="dt-request-list-pane">
+          <table class="dt-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Type</th>
+                <th>Method</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="dt-requests-tbody">
+              <!-- Logged dynamically upon every fetch() call -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Detail Pane -->
+        <div class="dt-detail-pane">
+          <div class="dt-detail-subtabs">
+            <div class="dt-subtab active" onclick="switchDetailTab('headers')">Headers</div>
+            <div class="dt-subtab" onclick="switchDetailTab('payload')">Payload</div>
+            <div class="dt-subtab" onclick="switchDetailTab('response')">JSON Response</div>
+          </div>
+          <div class="dt-detail-content" id="dt-detail-body">
+            Select a network request on the left to view Fetch headers and JSON response payload.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       ADD / EDIT STUDENT MODAL DIALOG
+       ========================================================================= -->
+  <div class="modal-overlay" id="student-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-heading">➕ Add New Student Record</h3>
+        <button type="button" class="modal-close-btn" id="btn-close-modal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="student-form" novalidate>
+        <div class="modal-body">
+          <!-- Hidden ID for update operations -->
+          <input type="hidden" id="student-id" name="student_id" value="">
+
+          <!-- General Alert Box -->
+          <div id="modal-alert" class="modal-alert-box">
+            <span id="modal-alert-msg">Validation error occurred.</span>
+          </div>
+
+          <!-- Full Name -->
+          <div class="form-group">
+            <label for="form-name" class="form-label">Full Name *</label>
+            <input type="text" id="form-name" name="name" class="form-input" placeholder="e.g., Jay Navadiya" required>
+            <div class="form-error-feedback" id="err-name">Full Name is required.</div>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label for="form-email" class="form-label">University Email *</label>
+            <input type="email" id="form-email" name="email" class="form-input" placeholder="e.g., 25cs052@charusat.edu.in" required>
+            <div class="form-error-feedback" id="err-email">Valid university email address is required.</div>
+          </div>
+
+          <!-- Department / Course -->
+          <div class="form-group">
+            <label for="form-course" class="form-label">Department / Course *</label>
+            <select id="form-course" name="course" class="form-input">
+              <option value="CSE">Computer Engineering (CSE)</option>
+              <option value="CE">Computer Science (CE)</option>
+              <option value="IT">Information Technology (IT)</option>
+              <option value="EC">Electronics & Comm. (EC)</option>
+            </select>
+          </div>
+
+          <!-- Status -->
+          <div class="form-group">
+            <label for="form-status" class="form-label">Enrollment Status *</label>
+            <select id="form-status" name="status" class="form-input">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-action-secondary" id="btn-cancel-modal">Cancel</button>
+          <button type="submit" class="btn-action-primary" id="btn-save-student">
+            <span id="btn-save-text">Save Student Record</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       DELETE CONFIRMATION MODAL DIALOG
+       ========================================================================= -->
+  <div class="modal-overlay" id="delete-modal" role="dialog" aria-modal="true">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: #dc2626;">🗑️ Confirm Record Deletion</h3>
+        <button type="button" class="modal-close-btn" id="btn-close-delete-modal">&times;</button>
+      </div>
+
+      <div class="modal-body delete-confirm-box">
+        <div class="delete-warning-icon">⚠️</div>
+        <h4 style="color: #0b194c; font-size: 1.1rem; margin-bottom: 0.5rem;">Permanently Delete Student?</h4>
+        <p style="color: #64748b; font-size: 0.9rem; line-height: 1.45;">
+          Are you sure you want to delete student <strong id="delete-student-name" style="color: #0f172a;"></strong> (Record ID: <strong id="delete-student-id"></strong>)?
+        </p>
+        <p style="color: #dc2626; font-size: 0.8rem; margin-top: 0.5rem; font-weight: 600;">
+          This action will immediately execute an asynchronous DELETE fetch request to api.php.
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-action-secondary" id="btn-cancel-delete">Cancel</button>
+        <button type="button" class="btn-delete" id="btn-confirm-delete" style="padding: 0.65rem 1.25rem; font-size: 0.9rem;">
+          Confirm Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portal Footer -->
+  <footer class="portal-footer">
+    <p><strong>Campusly Academic Portal</strong> | CHARUSAT CSPIT | PHP JSON API & Fetch-Based CRUD</p>
+    <p style="margin-top: 0.35rem; font-size: 0.78rem;">Designed for High-Performance Asynchronous Web Applications</p>
+  </footer>
+
+  <!-- Fetch API Application Script -->
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+# Operating System & Editor Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Dependencies & Package Managers
+node_modules/
+package.json
+package-lock.json
+
+# Screenshots, Documents & Laboratory Archives
+screenshots/
+PRAC SS/
+*.docx
+*.pdf
+*.png
+*.jpg
+*.jpeg
+
+# Exception: Project brand logo, UI assets and event posters
+!images/
+!images/*
+!images/campusly-logo.png
+!images/favicon.png
+!css/logo.png
+!uploads/
+!uploads/**
+!uploads/posters/*
+
+# Scratch and Logs
+*.log
+.system_generated/
+

@@ -1,0 +1,155 @@
+[
+  {
+    "id": 1,
+    "category": "Academic",
+    "question": "What is the mandatory attendance requirement at CHARUSAT to appear for end-term exams?",
+    "answer": "CHARUSAT strictly mandates a minimum of 80% aggregate attendance across theory lectures and laboratory sessions in each registered course. Students with 70-79% due to verified illness must submit medical certificates within 3 days.",
+    "keywords": "attendance, exam eligibility, medical leave, rule, 80%",
+    "updatedDate": "2026-08-15",
+    "views": 1420
+  },
+  {
+    "id": 2,
+    "category": "Academic",
+    "question": "How is the Semester Grade Point Average (SGPA) and Cumulative CPI calculated?",
+    "answer": "SGPA is calculated by dividing total quality points earned (Grade Points × Course Credits) by total registered semester credits. Cumulative Grade Point Index (CPI) is the weighted average across all completed semesters.",
+    "keywords": "cpi, sgpa, grading, calculation, credits, marks",
+    "updatedDate": "2026-08-20",
+    "views": 980
+  },
+  {
+    "id": 3,
+    "category": "Exam",
+    "question": "What is the official procedure to apply for re-assessment or re-checking of mid-term and university exams?",
+    "answer": "Students can apply for paper reassessment through the Charusat E-Governance portal within 7 days of result declaration by submitting the re-checking fee of ₹250 per course. Answer scripts are reviewed by external evaluators.",
+    "keywords": "rechecking, re-assessment, evaluation, marks, portal",
+    "updatedDate": "2026-09-01",
+    "views": 850
+  },
+  {
+    "id": 4,
+    "category": "Exam",
+    "question": "What are the passing criteria and remedial exam rules for backlogs?",
+    "answer": "A minimum of 40% in internal continuous evaluation and 40% in external university theory is required to pass a course with Grade D or above. Remedial exams are scheduled at the start of each semester.",
+    "keywords": "passing criteria, backlog, remedial exam, grade, ATKT",
+    "updatedDate": "2026-07-10",
+    "views": 1210
+  },
+  {
+    "id": 5,
+    "category": "Resources",
+    "question": "How can students connect to CHARUSAT high-speed Campus Wi-Fi across institutes?",
+    "answer": "Connect to SSID 'CHARUSAT-STUDENTS' and log in using your student portal roll number and password. If facing MAC binding issues, visit the Network Operations Centre (NOC) on the ground floor of CSPIT.",
+    "keywords": "wifi, internet, noc, cspit, network, login",
+    "updatedDate": "2026-09-10",
+    "views": 1640
+  },
+  {
+    "id": 6,
+    "category": "Resources",
+    "question": "What are the central library working hours and book borrowing limits for undergraduate students?",
+    "answer": "The Central Knowledge Resource Centre is open from 8:30 AM to 8:30 PM on weekdays and 9:00 AM to 5:00 PM on Saturdays. UG students can borrow up to 4 books for 14 days, renewable online twice.",
+    "keywords": "library, books, timing, borrowing, krc, journal",
+    "updatedDate": "2026-08-05",
+    "views": 720
+  },
+  {
+    "id": 7,
+    "category": "Resources",
+    "question": "How do I access IEEE Xplore, ScienceDirect, and digital research databases off-campus?",
+    "answer": "Off-campus remote access to IEEE, ACM Digital Library, and Springer is enabled via the RemoteXs portal using institutional credentials provided by the university librarian.",
+    "keywords": "ieee, research, remotexs, acm, journals, digital library",
+    "updatedDate": "2026-08-18",
+    "views": 530
+  },
+  {
+    "id": 8,
+    "category": "Campus",
+    "question": "What bus routes are operational and how do I apply for a University Transport Pass?",
+    "answer": "CHARUSAT operates 60+ AC and non-AC buses connecting Ahmedabad, Vadodara, Anand, Nadiad, and Surat. Bus passes can be renewed through the student portal before semester commencement.",
+    "keywords": "bus, transport, routes, ahmedabad, vadodara, anand",
+    "updatedDate": "2026-06-25",
+    "views": 1340
+  },
+  {
+    "id": 9,
+    "category": "Campus",
+    "question": "What on-campus healthcare and emergency medical facilities are available for students?",
+    "answer": "A 24x7 medical clinic with qualified resident doctors is located near the Girls Hostel complex with a dedicated emergency ambulance service linked to Charusat Hospital Changa.",
+    "keywords": "medical, clinic, doctor, hospital, emergency, ambulance",
+    "updatedDate": "2026-07-15",
+    "views": 410
+  },
+  {
+    "id": 10,
+    "category": "Campus",
+    "question": "How can students book campus sports facilities like tennis courts, badminton courts, or gym?",
+    "answer": "Sports facilities are accessible from 6:00 AM to 8:30 AM and 4:30 PM to 8:00 PM. Access is free upon producing a valid Student ID card at the Sports Complex reception desk.",
+    "keywords": "sports, gym, badminton, cricket, ground, booking",
+    "updatedDate": "2026-08-11",
+    "views": 670
+  },
+  {
+    "id": 11,
+    "category": "Career",
+    "question": "What is the eligibility criterion for participating in Campus Placement drives?",
+    "answer": "Typically, students with a minimum CPI of 6.5 or 7.0 and no active backlogs are eligible for campus placement drives conducted by the Training & Placement Cell (T&P).",
+    "keywords": "placement, t&p, job, cpi, eligibility, interview",
+    "updatedDate": "2026-08-28",
+    "views": 1890
+  },
+  {
+    "id": 12,
+    "category": "Career",
+    "question": "How do I secure University approval and NOC for a summer or 8th-semester industry internship?",
+    "answer": "Submit your company offer letter, role description, and departmental approval form to the Institute Internship Coordinator. A formal digital NOC is issued within 3 working days.",
+    "keywords": "internship, noc, 8th semester, training, company offer",
+    "updatedDate": "2026-09-05",
+    "views": 1150
+  },
+  {
+    "id": 13,
+    "category": "Campus",
+    "question": "How can I start a new technical or cultural student club under the Student Activity Council?",
+    "answer": "Gather a core team of at least 10 students, a faculty advisor from CSPIT or Depstar, draft a club charter with objectives, and submit your proposal to the Dean of Student Affairs.",
+    "keywords": "club, start club, activity council, student affairs",
+    "updatedDate": "2026-07-20",
+    "views": 460
+  },
+  {
+    "id": 14,
+    "category": "Academic",
+    "question": "What are the rules regarding Open Elective and University Elective course selections?",
+    "answer": "Students choose University Electives from non-engineering domains (like Languages, Management, Psychology, or Environmental Sciences) via the E-Governance portal during course registration week.",
+    "keywords": "open elective, course selection, elective, humanities",
+    "updatedDate": "2026-08-01",
+    "views": 810
+  },
+  {
+    "id": 15,
+    "category": "Campus",
+    "question": "What are the cafeteria locations and hostel mess timings on the Changa campus?",
+    "answer": "The Central Canteen, Nescafe Kiosk, and Amul Parlour operate from 8:00 AM to 7:00 PM. Hostel messes serve breakfast (7:30-9:00 AM), lunch (12:00-2:00 PM), and dinner (7:30-9:30 PM).",
+    "keywords": "canteen, food, hostel mess, timings, cafe",
+    "updatedDate": "2026-08-12",
+    "views": 940
+  },
+  {
+    "id": 16,
+    "category": "Resources",
+    "question": "How do I get my institutional student GitHub Education and Microsoft 365 benefits?",
+    "answer": "All CHARUSAT students receive a @charusat.edu.in Microsoft 365 license (Word, Excel, OneDrive 1TB). You can also unlock GitHub Student Developer Pack with free Copilot and cloud credits using this email.",
+    "keywords": "github, student pack, microsoft 365, office, email, software discount",
+    "updatedDate": "2026-09-02",
+    "views": 1560
+  },
+  {
+    "id": 17,
+    "category": "Career",
+    "question": "Where can I submit feedback or check details for the Code Wizards 6 Hours Hackathon?",
+    "answer": "The Code Wizards – 6 Hours Hackathon was organized by GrowwithGit Club, CHARUSAT on 1st October (9:00 AM – 4:00 PM) at CSPIT. Students and participants can submit feedback or access certificates via the official Google Form: https://docs.google.com/forms/d/e/1FAIpQLSefAvKi2mA7QJjwn_vIf_vMMffJrkHX48TOMffq2OfiyY7HEA/viewform?usp=header",
+    "keywords": "code wizards, hackathon, growwithgit, feedback form, google form, cspit, charusat",
+    "updatedDate": "2026-10-02",
+    "views": 1820
+  }
+]
