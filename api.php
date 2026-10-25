@@ -59,12 +59,8 @@ function sendJsonResponse(int $statusCode, bool $success, string $message, $data
 
 // Global exception and error handler
 try {
-    if (!isset($conn) || $conn->connect_error) {
-        sendJsonResponse(500, false, 'Database connection error: Unable to reach MySQL server.');
-    }
-
     // Determine effective HTTP method (supports method override for maximum client compatibility)
-    $method = strtoupper($_SERVER['REQUEST_METHOD']);
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
     if ($method === 'POST') {
         if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
             $method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
@@ -76,6 +72,33 @@ try {
             elseif ($action === 'update' || $action === 'edit') $method = 'PUT';
             elseif ($action === 'create' || $action === 'add') $method = 'POST';
         }
+    }
+
+    if (!isset($conn) || $conn->connect_error) {
+        if ($method === 'GET' && file_exists(__DIR__ . '/data/students.json')) {
+            $raw = json_decode(file_get_contents(__DIR__ . '/data/students.json'), true);
+            $list = [];
+            foreach ($raw as $item) {
+                $dept = $item['department'] ?? 'CSE';
+                $code = 'CSE';
+                if (stripos($dept, 'Information') !== false || stripos($dept, 'IT') !== false) $code = 'IT';
+                elseif (stripos($dept, 'Communication') !== false || stripos($dept, 'EC') !== false) $code = 'EC';
+                elseif (stripos($dept, 'Computer Eng') !== false || stripos($dept, 'CE') !== false) $code = 'CE';
+
+                $list[] = [
+                    'student_id' => (int)($item['id'] ?? 1),
+                    'name'       => $item['name'] ?? '',
+                    'email'      => $item['email'] ?? '',
+                    'course'     => $code,
+                    'status'     => $item['status'] ?? 'Active'
+                ];
+            }
+            sendJsonResponse(200, true, 'Student records retrieved successfully (Demo Cloud Mode)', $list, [
+                'total_records' => count($list),
+                'mode'          => 'demo_cloud'
+            ]);
+        }
+        sendJsonResponse(500, false, 'Database connection error: Unable to reach MySQL server.');
     }
 
     // Parse input payload (handles application/json body as well as x-www-form-urlencoded)

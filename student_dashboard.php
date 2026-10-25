@@ -15,8 +15,8 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_role   = $_SESSION['role'] ?? 'guest';
-$user_name   = $_SESSION['name'] ?? 'Student';
-$user_email  = $_SESSION['email'] ?? '';
+$user_name   = $_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Student';
+$user_email  = $_SESSION['email'] ?? $_SESSION['user_email'] ?? '';
 $session_id  = session_id();
 $pre_sess_id = $_SESSION['pre_login_session_id'] ?? 'N/A';
 $post_sess_id= $_SESSION['post_login_session_id'] ?? $session_id;
@@ -103,12 +103,50 @@ if ($user_role !== 'student') {
 
 // User is verified Student: Fetch registered student records
 $student_details = null;
-$st_stmt = $conn->prepare("SELECT * FROM students WHERE email = ? LIMIT 1");
-if ($st_stmt) {
-    $st_stmt->bind_param("s", $user_email);
-    $st_stmt->execute();
-    $student_details = $st_stmt->get_result()->fetch_assoc();
-    $st_stmt->close();
+if (!empty($conn) && $conn instanceof mysqli) {
+    try {
+        $st_stmt = $conn->prepare("SELECT * FROM students WHERE email = ? LIMIT 1");
+        if ($st_stmt) {
+            $st_stmt->bind_param("s", $user_email);
+            $st_stmt->execute();
+            $student_details = $st_stmt->get_result()->fetch_assoc();
+            $st_stmt->close();
+        }
+    } catch (Throwable $e) {
+        $student_details = null;
+    }
+}
+
+// Fallback student profile if database is offline or unseeded
+if (!$student_details) {
+    $studentsJsonPath = __DIR__ . '/data/students.json';
+    if (file_exists($studentsJsonPath)) {
+        $allJsonStudents = json_decode(file_get_contents($studentsJsonPath), true);
+        if (is_array($allJsonStudents)) {
+            foreach ($allJsonStudents as $item) {
+                if (strcasecmp($item['email'] ?? '', $user_email) === 0 ||
+                    strcasecmp($item['name'] ?? '', $user_name) === 0) {
+                    $student_details = [
+                        'student_id' => $item['id'] ?? 1,
+                        'name'       => $item['name'] ?? $user_name,
+                        'email'      => $item['email'] ?? $user_email,
+                        'course'     => $item['department'] ?? 'Computer Science & Engineering (CSE)',
+                        'status'     => $item['status'] ?? 'Active'
+                    ];
+                    break;
+                }
+            }
+        }
+    }
+    if (!$student_details) {
+        $student_details = [
+            'student_id' => $_SESSION['student_id'] ?? 1,
+            'name'       => $user_name,
+            'email'      => $user_email,
+            'course'     => 'Computer Science & Engineering (CSE)',
+            'status'     => 'Active'
+        ];
+    }
 }
 
 $pageTitle = "Student Dashboard - Campusly";

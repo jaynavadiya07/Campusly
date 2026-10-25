@@ -14,17 +14,24 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
 require_login(['student']);
 
 // Fetch user profile from database
-$stmt = $pdo->prepare("SELECT u.user_id, u.name, u.email, u.role, u.student_id, u.last_login, s.course 
-                       FROM users u 
-                       LEFT JOIN students s ON u.student_id = s.student_id 
-                       WHERE u.user_id = :uid LIMIT 1");
-$stmt->execute([':uid' => $_SESSION['user_id']]);
-$user = $stmt->fetch();
+$user = null;
+if (isset($pdo) && $pdo !== null) {
+    try {
+        $stmt = $pdo->prepare("SELECT u.user_id, u.name, u.email, u.role, u.student_id, u.last_login, s.course 
+                               FROM users u 
+                               LEFT JOIN students s ON u.student_id = s.student_id 
+                               WHERE u.user_id = :uid LIMIT 1");
+        $stmt->execute([':uid' => $_SESSION['user_id']]);
+        $user = $stmt->fetch();
+    } catch (Throwable $e) {
+        $user = null;
+    }
+}
 
-$userName  = $user['name'] ?? $_SESSION['user_name'];
-$userEmail = $user['email'] ?? $_SESSION['user_email'];
+$userName  = $user['name'] ?? $_SESSION['name'] ?? $_SESSION['user_name'] ?? 'Student';
+$userEmail = $user['email'] ?? $_SESSION['email'] ?? $_SESSION['user_email'] ?? 'student@campusly.com';
 $userCourse = $user['course'] ?? 'Computer Science & Engineering (CSE)';
-$userRole  = ucfirst($user['role'] ?? $_SESSION['role']);
+$userRole  = ucfirst($user['role'] ?? $_SESSION['role'] ?? 'student');
 $lastLogin = !empty($user['last_login']) 
     ? date('d M Y, h:i:s A', strtotime($user['last_login'])) 
     : 'Active Session';

@@ -273,46 +273,63 @@ function login_user($user, $remember = false) {
     global $pdo;
 
     // Defend against session fixation by regenerating session ID
+    $pre_id = session_id();
     session_regenerate_id(true);
+    $post_id = session_id();
 
-    $_SESSION['user_id']       = $user['user_id'];
-    $_SESSION['user_name']     = $user['name'];
-    $_SESSION['user_email']    = $user['email'];
-    $_SESSION['role']          = $user['role'];
-    $_SESSION['student_id']    = $user['student_id'];
-    $_SESSION['last_activity'] = time();
+    $_SESSION['user_id']               = $user['user_id'];
+    $_SESSION['user_name']             = $user['name'];
+    $_SESSION['name']                  = $user['name'];
+    $_SESSION['user_email']            = $user['email'];
+    $_SESSION['email']                 = $user['email'];
+    $_SESSION['role']                  = $user['role'];
+    $_SESSION['student_id']            = $user['student_id'] ?? null;
+    $_SESSION['last_activity']         = time();
+    $_SESSION['pre_login_session_id']  = $pre_id;
+    $_SESSION['post_login_session_id'] = $post_id;
+    $_SESSION['session_regenerated']   = true;
 
     // Log successful login action in audit_logs
     log_audit('LOGIN_SUCCESS', ucfirst($user['role']) . ' user ' . $user['email'] . ' authenticated successfully', $user['user_id'], $user['email'], $user['role']);
 
-    // Intermediate Extension: Record last login timestamp
-    $upd = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE user_id = :uid");
-    $upd->execute([':uid' => $user['user_id']]);
+    // Intermediate Extension: Record last login timestamp (if database available)
+    if (isset($pdo) && $pdo !== null) {
+        try {
+            $upd = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE user_id = :uid");
+            $upd->execute([':uid' => $user['user_id']]);
+        } catch (Throwable $e) {
+            // Ignore DB errors in offline/serverless demo mode
+        }
+    }
 
     // Advanced Extension: Secure Remember-Me Token via random_bytes & SHA-256 hash
-    if ($remember) {
-        $rawToken  = bin2hex(random_bytes(32)); // 64 hex characters cryptographically strong token
-        $tokenHash = hash('sha256', $rawToken); // Store only SHA-256 hash in DB
-        $expiresAt = date('Y-m-d H:i:s', time() + (14 * 86400)); // 14 days validity
+    if ($remember && isset($pdo) && $pdo !== null) {
+        try {
+            $rawToken  = bin2hex(random_bytes(32)); // 64 hex characters cryptographically strong token
+            $tokenHash = hash('sha256', $rawToken); // Store only SHA-256 hash in DB
+            $expiresAt = date('Y-m-d H:i:s', time() + (14 * 86400)); // 14 days validity
 
-        $tokenStmt = $pdo->prepare("UPDATE users 
-                                    SET remember_token_hash = :hash, 
-                                        remember_token_expires = :expires 
-                                    WHERE user_id = :uid");
-        $tokenStmt->execute([
-            ':hash'    => $tokenHash,
-            ':expires' => $expiresAt,
-            ':uid'     => $user['user_id']
-        ]);
+            $tokenStmt = $pdo->prepare("UPDATE users 
+                                        SET remember_token_hash = :hash, 
+                                            remember_token_expires = :expires 
+                                        WHERE user_id = :uid");
+            $tokenStmt->execute([
+                ':hash'    => $tokenHash,
+                ':expires' => $expiresAt,
+                ':uid'     => $user['user_id']
+            ]);
 
-        $isHttps = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
-        setcookie('remember_token', $rawToken, [
-            'expires'  => time() + (14 * 86400),
-            'path'     => '/',
-            'httponly' => true,
-            'samesite' => 'Lax',
-            'secure'   => $isHttps
-        ]);
+            $isHttps = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+            setcookie('remember_token', $rawToken, [
+                'expires'  => time() + (14 * 86400),
+                'path'     => '/',
+                'httponly' => true,
+                'samesite' => 'Lax',
+                'secure'   => $isHttps
+            ]);
+        } catch (Throwable $e) {
+            // Ignore token storage errors in offline mode
+        }
     }
 }
 
@@ -323,7 +340,7 @@ function logout_user($reason = 'manual') {
     global $pdo;
 
     // Clear remember-me token from database if user is known
-    if (!empty($_SESSION['user_id']) && isset($pdo)) {
+    if (!empty($_SESSION['user_id']) && isset($pdo) && $pdo !== null) {
         try {
             $stmt = $pdo->prepare("UPDATE users SET remember_token_hash = NULL, remember_token_expires = NULL WHERE user_id = :uid");
             $stmt->execute([':uid' => $_SESSION['user_id']]);
