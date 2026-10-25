@@ -52,7 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errorMessage = 'Validation Error: Password must be at least 6 characters in length.';
     
     } else {
-        try {
+        if (empty($pdo) || empty($db_connected)) {
+            $errorMessage = 'Database Offline: Cloud database is not connected. Please add your database environment variables in Vercel.';
+        } else {
+            try {
             // Requirement 5: Duplicate email/username validation
             $checkStmt = $pdo->prepare("SELECT user_id, email, name FROM users WHERE email = :email OR name = :name LIMIT 1");
             $checkStmt->execute([':email' => $email, ':name' => $fullname]);
@@ -92,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } catch (PDOException $e) {
             $errorMessage = 'Database insertion error: ' . htmlspecialchars($e->getMessage());
+        }
         }
     }
 }

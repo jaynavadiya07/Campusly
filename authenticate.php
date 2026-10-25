@@ -36,6 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
+    if (empty($conn) || empty($db_connected)) {
+        header("Location: login.php?msg=dberror");
+        exit();
+    }
+
     // Prepare MySQLi statement to fetch user record by email
     $stmt = $conn->prepare("SELECT user_id, name, email, password_hash, role FROM users WHERE email = ? LIMIT 1");
     if ($stmt) {

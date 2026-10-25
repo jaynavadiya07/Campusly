@@ -38,6 +38,8 @@ if ($msg === 'timeout') {
     $errorMessage = 'Access Denied: You must sign in to view that protected page.';
 } elseif ($msg === 'forbidden') {
     $errorMessage = 'Access Forbidden: You do not possess the required permissions for that section.';
+} elseif ($msg === 'dberror') {
+    $errorMessage = 'Database Offline: Cloud database is not connected. Please add your database environment variables in Vercel.';
 } elseif ($msg === 'failed') {
     $errorMessage = 'Invalid email credentials or password. Please verify and try again.';
 } elseif ($msg === 'logged_out') {

@@ -186,6 +186,10 @@ function enforce_session_timeout() {
 function check_remember_token() {
     global $pdo;
 
+    if (!isset($pdo) || $pdo === null) {
+        return;
+    }
+
     if (empty($_SESSION['user_id']) && !empty($_COOKIE['remember_token'])) {
         $rawToken = $_COOKIE['remember_token'];
         $tokenHash = hash('sha256', $rawToken);
