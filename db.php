@@ -4,24 +4,29 @@
  * System: Campusly Academic Portal
  */
 
-$host     = '127.0.0.1';
-$user     = 'root';
-$password = '';
-$database = 'campusly';
-$port     = 3306;
+// Load credentials with cloud environment variable support (Vercel, Railway, Render, etc.)
+$host     = getenv('DB_HOST') ?: '127.0.0.1';
+$user     = getenv('DB_USER') ?: 'root';
+$password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : (getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : '');
+$database = getenv('DB_NAME') ?: 'studenthub';
+$port     = (int)(getenv('DB_PORT') ?: 3306);
 
 // 1. MySQLi Object-Oriented Connection (Supporting studenthub and campusly)
-$database = 'studenthub';
 $conn = @new mysqli($host, $user, $password, $database, $port);
 
-if ($conn->connect_error) {
-    // Fallback to campusly if studenthub is not present
+if ($conn->connect_error && empty(getenv('DB_NAME'))) {
+    // Fallback to campusly if studenthub is not present locally
     $database = 'campusly';
-    $conn = new mysqli($host, $user, $password, $database, $port);
+    $conn = @new mysqli($host, $user, $password, $database, $port);
 }
 
 if ($conn->connect_error) {
-    die("MySQLi Database Connection Failed: " . $conn->connect_error);
+    $isCloud = !empty(getenv('VERCEL')) || !empty(getenv('AWS_LAMBDA_FUNCTION_NAME'));
+    $errMsg = "MySQL Database Connection Error: " . $conn->connect_error;
+    if ($isCloud) {
+        $errMsg .= " (Please verify your Vercel Environment Variables: DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT).";
+    }
+    die($errMsg);
 }
 
 // Set charset to utf8mb4
