@@ -23,7 +23,7 @@ define('SESSION_TIMEOUT_SECONDS', 600);
  * Records administrative actions and security events into MySQL audit_logs
  */
 function log_audit($action, $details = '', $userId = null, $userEmail = null, $userRole = null) {
-    global $pdo, $conn;
+    global $pdo, $conn, $db_connected;
 
     if ($userId === null && isset($_SESSION['user_id'])) {
         $userId = $_SESSION['user_id'];
@@ -36,7 +36,7 @@ function log_audit($action, $details = '', $userId = null, $userEmail = null, $u
     }
     $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 
-    if (isset($pdo) && $pdo !== null) {
+    if (!empty($db_connected) && isset($pdo) && $pdo !== null) {
         try {
             $stmt = $pdo->prepare("INSERT INTO audit_logs (user_id, user_email, user_role, action, details, ip_address, created_at) VALUES (:uid, :email, :role, :action, :details, :ip, NOW())");
             $stmt->execute([
@@ -48,12 +48,12 @@ function log_audit($action, $details = '', $userId = null, $userEmail = null, $u
                 ':ip'      => $ip
             ]);
             return;
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             // continue fallback
         }
     }
 
-    if (isset($conn) && $conn !== null) {
+    if (!empty($db_connected) && isset($conn) && $conn !== null) {
         try {
             $stmt = $conn->prepare("INSERT INTO audit_logs (user_id, user_email, user_role, action, details, ip_address, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
             if ($stmt) {
@@ -61,7 +61,7 @@ function log_audit($action, $details = '', $userId = null, $userEmail = null, $u
                 $stmt->execute();
                 $stmt->close();
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             // ignore
         }
     }

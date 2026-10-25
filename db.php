@@ -31,11 +31,21 @@ try {
         if ($conn && !$conn->connect_error) {
             $conn->set_charset("utf8mb4");
             $db_connected = true;
+        } else {
+            $conn = null;
+            $db_connected = false;
         }
+    } else {
+        $conn = null;
+        $db_connected = false;
     }
 } catch (Throwable $e) {
     $conn = null;
     $db_connected = false;
+}
+
+if (!$db_connected) {
+    $conn = null;
 }
 
 // 2. PDO Instance (for prepared statements and relational queries)
@@ -49,6 +59,8 @@ if ($db_connected && $conn) {
     } catch (Throwable $e) {
         $pdo = null;
     }
+} else {
+    $pdo = null;
 }
 
 // Diagnostic output if db.php is run directly
