@@ -157,6 +157,16 @@ require_once __DIR__ . '/includes/header.php';
   <!-- Student Content Container -->
   <main class="container" style="max-width: 1100px; margin: 2rem auto;">
 
+    <?php if (isset($_GET['msg']) && $_GET['msg'] === 'registered'): ?>
+      <div class="alert alert-success" style="background: #f0fdf4; border: 1.5px solid #86efac; color: #166534; padding: 1.1rem 1.4rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 14px rgba(22, 163, 74, 0.08);">
+        <span style="font-size: 1.6rem; line-height: 1;">🎉</span>
+        <div>
+          <strong style="font-size: 1.05rem;">Registration Successful!</strong>
+          <div style="margin-top: 2px; font-size: 0.94rem;">Welcome to Campusly, <strong><?= htmlspecialchars($user_name) ?></strong>! Your student account has been created and your session is active.</div>
+        </div>
+      </div>
+    <?php endif; ?>
+
     <!-- Inactivity Timeout Monitor Bar -->
     <div class="session-bar">
       <div>

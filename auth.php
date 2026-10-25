@@ -393,3 +393,47 @@ function get_session_time_remaining() {
     $elapsed = time() - $_SESSION['last_activity'];
     return max(0, SESSION_TIMEOUT_SECONDS - $elapsed);
 }
+
+/**
+ * Retrieve dynamically registered accounts (Session & Serverless Temp Storage)
+ */
+function get_dynamic_users() {
+    $users = $_SESSION['dynamic_users'] ?? [];
+    $tmpFile = sys_get_temp_dir() . '/campusly_users.json';
+    if (file_exists($tmpFile)) {
+        $fileData = @json_decode(file_get_contents($tmpFile), true);
+        if (is_array($fileData)) {
+            foreach ($fileData as $emailKey => $u) {
+                if (!isset($users[$emailKey])) {
+                    $users[$emailKey] = $u;
+                }
+            }
+        }
+    }
+    return $users;
+}
+
+/**
+ * Persist a newly registered student account to Session and Temp Storage
+ */
+function save_dynamic_user($newUser) {
+    if (session_status() === PHP_SESSION_NONE) {
+        @session_start();
+    }
+    $emailKey = strtolower(trim($newUser['email']));
+    if (!isset($_SESSION['dynamic_users'])) {
+        $_SESSION['dynamic_users'] = [];
+    }
+    $_SESSION['dynamic_users'][$emailKey] = $newUser;
+
+    $tmpFile = sys_get_temp_dir() . '/campusly_users.json';
+    $existing = [];
+    if (file_exists($tmpFile)) {
+        $loaded = @json_decode(file_get_contents($tmpFile), true);
+        if (is_array($loaded)) {
+            $existing = $loaded;
+        }
+    }
+    $existing[$emailKey] = $newUser;
+    @file_put_contents($tmpFile, json_encode($existing, JSON_PRETTY_PRINT));
+}

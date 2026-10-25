@@ -300,6 +300,49 @@ if (empty($students) && file_exists(__DIR__ . '/data/students.json')) {
         }
     }
 }
+
+// Merge dynamically registered student accounts into the directory
+$dynUsers = get_dynamic_users();
+if (!empty($dynUsers)) {
+    foreach ($dynUsers as $du) {
+        $found = false;
+        foreach ($students as $st) {
+            if (strcasecmp($st['email'], $du['email']) === 0) {
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            $courseCode = $du['course'] ?? 'CSE';
+            if (stripos($courseCode, 'Information') !== false || stripos($courseCode, 'IT') !== false) $courseCode = 'IT';
+            elseif (stripos($courseCode, 'Communication') !== false || stripos($courseCode, 'EC') !== false) $courseCode = 'EC';
+            elseif (stripos($courseCode, 'Computer Eng') !== false || stripos($courseCode, 'CE') !== false) $courseCode = 'CE';
+            elseif (stripos($courseCode, 'CSE') !== false) $courseCode = 'CSE';
+
+            $newSt = [
+                'student_id' => $du['student_id'] ?? rand(100, 999),
+                'name'       => $du['name'],
+                'email'      => $du['email'],
+                'course'     => $courseCode,
+                'status'     => $du['status'] ?? 'Active'
+            ];
+
+            if ($searchQuery !== '') {
+                if (stripos($newSt['name'], $searchQuery) === false && stripos($newSt['email'], $searchQuery) === false) {
+                    continue;
+                }
+            }
+            if ($courseFilter !== '' && $courseFilter !== 'ALL') {
+                if ($newSt['course'] !== $courseFilter) continue;
+            }
+            if ($statusFilter !== '' && $statusFilter !== 'ALL') {
+                if ($newSt['status'] !== $statusFilter) continue;
+            }
+
+            array_unshift($students, $newSt);
+        }
+    }
+}
 $totalCount = count($students);
 
 // Available courses for filter dropdown

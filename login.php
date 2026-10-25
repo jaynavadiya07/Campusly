@@ -84,6 +84,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // 2. Resilient Cloud & Serverless Demo Authentication (Vercel deployment fallback)
             if (!$user) {
+                // Check dynamically registered student accounts first
+                $dynUsers = get_dynamic_users();
+                $lowerInput = strtolower($email);
+                if (isset($dynUsers[$lowerInput])) {
+                    $dyn = $dynUsers[$lowerInput];
+                    if (password_verify($password, $dyn['password_hash'] ?? '')) {
+                        $user = [
+                            'user_id'    => $dyn['user_id'],
+                            'name'       => $dyn['name'],
+                            'email'      => $dyn['email'],
+                            'role'       => $dyn['role'] ?? 'student',
+                            'student_id' => $dyn['student_id'] ?? null
+                        ];
+                    }
+                }
+            }
+
+            if (!$user) {
                 $demoAccounts = [
                     [
                         'user_id'    => 1,
@@ -182,52 +200,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errorMessage = 'Password and confirmation password do not match.';
             } elseif (strlen($password) < 6) {
                 $errorMessage = 'Password must be at least 6 characters long.';
-            } elseif (!isset($pdo) || $pdo === null) {
-                $errorMessage = 'Cloud database is currently offline. Please use the pre-configured demo student accounts to sign in (e.g. student@campusly.com / Student@123 or jay@campusly.com / Student@123).';
             } else {
-                try {
-                    // Check if email already registered
-                    $checkStmt = $pdo->prepare("SELECT user_id FROM users WHERE email = :email LIMIT 1");
-                    $checkStmt->execute([':email' => $email]);
-                    if ($checkStmt->fetch()) {
-                        $errorMessage = 'An account with this email address already exists. Please sign in instead.';
+                $registeredSuccess = false;
+
+                // 1. If MySQL is connected, insert into live database
+                if (isset($pdo) && $pdo !== null) {
+                    try {
+                        $checkStmt = $pdo->prepare("SELECT user_id FROM users WHERE email = :email LIMIT 1");
+                        $checkStmt->execute([':email' => $email]);
+                        if ($checkStmt->fetch()) {
+                            $errorMessage = 'An account with this email address already exists. Please sign in instead.';
+                            $registeredSuccess = true; // Handled
+                        } else {
+                            $st = $pdo->prepare("INSERT INTO students (name, email, course) VALUES (:name, :email, :course)");
+                            $st->execute([
+                                ':name'   => $fullname,
+                                ':email'  => $email,
+                                ':course' => $department
+                            ]);
+                            $studentId = $pdo->lastInsertId();
+
+                            $hash = password_hash($password, PASSWORD_DEFAULT);
+                            $uStmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, role, student_id) 
+                                                    VALUES (:name, :email, :hash, 'student', :sid)");
+                            $uStmt->execute([
+                                ':name'  => $fullname,
+                                ':email' => $email,
+                                ':hash'  => $hash,
+                                ':sid'   => $studentId
+                            ]);
+
+                            $newUserId = $pdo->lastInsertId();
+                            $newUser = [
+                                'user_id'    => $newUserId,
+                                'name'       => $fullname,
+                                'email'      => $email,
+                                'role'       => 'student',
+                                'student_id' => $studentId
+                            ];
+
+                            login_user($newUser, false);
+                            header('Location: student_dashboard.php?msg=registered');
+                            exit;
+                        }
+                    } catch (Throwable $e) {
+                        $registeredSuccess = false;
+                    }
+                }
+
+                // 2. Resilient Cloud & Serverless Registration Fallback (Vercel deployment)
+                if (!$registeredSuccess && empty($errorMessage)) {
+                    $dynUsers = get_dynamic_users();
+                    $lowerEmail = strtolower($email);
+
+                    // Check duplicate in demo accounts or dynamic accounts
+                    $isDuplicate = isset($dynUsers[$lowerEmail]) || in_array($lowerEmail, [
+                        'admin@campusly.com', 'jay@campusly.com', 'student@campusly.com', 'bhavy@campusly.com'
+                    ], true);
+
+                    if ($isDuplicate) {
+                        $errorMessage = "An account with email '{$email}' already exists. Please sign in instead.";
                     } else {
-                        // 1. Insert into students table
-                        $st = $pdo->prepare("INSERT INTO students (name, email, course) VALUES (:name, :email, :course)");
-                        $st->execute([
-                            ':name'   => $fullname,
-                            ':email'  => $email,
-                            ':course' => $department
-                        ]);
-                        $studentId = $pdo->lastInsertId();
+                        $newStudentId = rand(100, 999);
+                        $newUserId    = rand(1000, 9999);
+                        $hash         = password_hash($password, PASSWORD_DEFAULT);
 
-                        // 2. Hash password & insert into users table
-                        $hash = password_hash($password, PASSWORD_DEFAULT);
-                        $uStmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, role, student_id) 
-                                                VALUES (:name, :email, :hash, 'student', :sid)");
-                        $uStmt->execute([
-                            ':name'  => $fullname,
-                            ':email' => $email,
-                            ':hash'  => $hash,
-                            ':sid'   => $studentId
-                        ]);
-
-                        // Automatically log in new student
-                        $newUserId = $pdo->lastInsertId();
                         $newUser = [
-                            'user_id'    => $newUserId,
-                            'name'       => $fullname,
-                            'email'      => $email,
-                            'role'       => 'student',
-                            'student_id' => $studentId
+                            'user_id'       => $newUserId,
+                            'name'          => $fullname,
+                            'email'         => $email,
+                            'password_hash' => $hash,
+                            'role'          => 'student',
+                            'course'        => $department,
+                            'student_id'    => $newStudentId,
+                            'status'        => 'Active',
+                            'last_login'    => date('Y-m-d H:i:s'),
+                            'created_at'    => date('Y-m-d H:i:s')
                         ];
 
+                        save_dynamic_user($newUser);
                         login_user($newUser, false);
                         header('Location: student_dashboard.php?msg=registered');
                         exit;
                     }
-                } catch (PDOException $e) {
-                    $errorMessage = 'Database registration error: ' . $e->getMessage();
                 }
             }
         }

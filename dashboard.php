@@ -301,6 +301,35 @@ if (empty($usersList)) {
     ];
 }
 
+// Merge dynamically registered student accounts into admin control table
+$dynUsers = get_dynamic_users();
+if (!empty($dynUsers)) {
+    foreach ($dynUsers as $du) {
+        $found = false;
+        foreach ($usersList as $ul) {
+            if (strcasecmp($ul['email'], $du['email']) === 0) {
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            $usersList[] = [
+                'user_id'    => $du['user_id'],
+                'name'       => $du['name'],
+                'email'      => $du['email'],
+                'role'       => $du['role'] ?? 'student',
+                'status'     => $du['status'] ?? 'Active',
+                'last_login' => $du['last_login'] ?? date('Y-m-d H:i:s'),
+                'created_at' => $du['created_at'] ?? date('Y-m-d H:i:s')
+            ];
+            $countUsers++;
+            $countStudents++;
+            $countActiveUsers++;
+            $countActiveStudents++;
+        }
+    }
+}
+
 if (empty($latestRegistrations)) {
     $latestRegistrations = [
         ['reg_id' => 14, 'student_name' => 'Jay Navadiya', 'student_email' => 'jay@campusly.com', 'student_course' => 'CSE', 'event_name' => 'AI & Deep Learning Workshop', 'event_venue' => 'Central Library Auditorium', 'registered_at' => '2026-10-21 11:15:00'],

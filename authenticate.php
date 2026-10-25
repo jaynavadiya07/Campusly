@@ -58,7 +58,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // 2. Fallback Demo Credentials (Cloud / Vercel Serverless environment)
+    // 2. Fallback Dynamic & Demo Credentials (Cloud / Vercel Serverless environment)
+    if (!$user) {
+        $dynUsers = get_dynamic_users();
+        $lowerInput = strtolower($email);
+        if (isset($dynUsers[$lowerInput])) {
+            $dyn = $dynUsers[$lowerInput];
+            if (password_verify($password, $dyn['password_hash'] ?? '')) {
+                $user = [
+                    'user_id'    => $dyn['user_id'],
+                    'name'       => $dyn['name'],
+                    'email'      => $dyn['email'],
+                    'role'       => $dyn['role'] ?? 'student',
+                    'student_id' => $dyn['student_id'] ?? null
+                ];
+            }
+        }
+    }
+
     if (!$user) {
         $demoAccounts = [
             ['user_id' => 1, 'name' => 'Administrator', 'email' => 'admin@campusly.com', 'passwords' => ['Admin@123', 'admin'], 'aliases' => ['admin@campusly.com', 'admin', 'administrator'], 'role' => 'admin'],
